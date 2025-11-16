@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EV Trading Platform ⚡</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/script.js}" defer></script>
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="fragments/header :: header"></div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Chào mừng đến với <span>EV Trading Platform ⚡</span></h1>
+        <p>Khám phá các xe điện và pin đã qua sử dụng được đăng mới nhất hôm nay!</p>
+        <!-- ĐÃ BỎ NÚT "Khám phá thị trường" -->
+    </div>
+</section>
+
+<!-- ⭐ BẢNG TIN + BỘ LỌC -->
+<section class="posts-section" th:if="${posts != null}">
+
+    <div class="posts-header">
+        <h2 class="posts-title">Bảng tin xe điện &amp; pin mới nhất</h2>
+
+        <form class="posts-filter" th:action="@{/}" method="get">
+
+            <input type="text"
+                   name="q"
+                   class="filter-input"
+                   placeholder="🔍 Tìm theo tiêu đề hoặc địa điểm..."
+                   th:value="${q}">
+
+            <select name="type" class="filter-select">
+                <option value="" th:selected="${type == null or type == ''}">
+                    Tất cả loại tin
+                </option>
+                <option value="EV" th:selected="${type == 'EV'}">Xe điện</option>
+                <option value="PIN" th:selected="${type == 'PIN'}">Pin năng lượng</option>
+            </select>
+
+            <button type="submit" class="filter-btn">Lọc</button>
+
+            <!-- ⭐ NÚT RESET -->
+            <a href="/" class="filter-reset">Reset</a>
+
+        </form>
+    </div>
+
+    <!-- Lưới bài đăng -->
+    <div class="post-grid">
+        <div class="post-card" th:each="p : ${posts}">
+
+            <img th:if="${p.imagePath != null}"
+                 th:src="${p.imagePath}"
+                 alt="Ảnh tin"
+                 class="post-image">
+
+            <h3 class="post-title" th:text="${p.title}"></h3>
+
+            <p class="post-meta">
+                <span th:text="${p.location}"></span>
+                •
+                <span th:text="${p.category == 'EV' ? 'Xe điện' :
+                                (p.category == 'PIN' ? 'Pin năng lượng' : p.category)}"></span>
+            </p>
+
+            <p class="post-price"
+               th:if="${p.price != null}"
+               th:text="${#numbers.formatDecimal(p.price, 0, 'POINT', 0, 'POINT')} + ' đ'">
+            </p>
+
+            <a th:href="@{'/posts/' + ${p.id}}" class="btn-outline">Xem chi tiết</a>
+        </div>
+    </div>
+
+</section>
+
+<!-- ⭐ 3 CARD DANH MỤC Ở DƯỚI BẢNG TIN -->
+<section class="categories">
+    <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/483/483361.png" alt="EV Market">
+        <h3>Thị trường xe điện</h3>
+        <p>Mua bán xe điện đã qua sử dụng với thông tin minh bạch và đáng tin cậy.</p>
+        <a href="/market" class="btn">Xem ngay</a>
+    </div>
+
+    <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/1048/1048947.png" alt="Battery Trading">
+        <h3>Thị trường pin</h3>
+        <p>Giao dịch pin năng lượng, kiểm định chất lượng và vòng đời sản phẩm.</p>
+        <a href="/battery" class="btn">Khám phá</a>
+    </div>
+
+    <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2950/2950679.png" alt="About EV Trading">
+        <h3>Giới thiệu</h3>
+        <p>Tìm hiểu thêm về nền tảng và sứ mệnh của EV Trading Platform.</p>
+        <a href="/about" class="btn">Tìm hiểu</a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2025 EV Trading Platform ⚡ — Nền tảng giao dịch xe điện &amp; pin đã qua sử dụng</p>
+</footer>
+
+</body>
+</html>

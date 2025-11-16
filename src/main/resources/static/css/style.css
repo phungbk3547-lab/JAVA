@@ -1,0 +1,462 @@
+/* ==== EV Trading Platform - White + DimGray Theme ==== */
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #ffffff;      /* nền trắng */
+  color: #303030;                 /* chữ chính */
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #dcdcdc;
+  padding: 10px 30px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.site-title {
+  color: #696969;                /* đổi từ xanh sang DimGray */
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #696969;                /* icon menu DimGray */
+}
+
+/* Side Menu */
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  height: 100%;
+  width: 220px;
+  background: #dcdcdc;           /* xám nhạt */
+  border-right: 1px solid #ccc;
+  padding-top: 80px;
+  transition: left 0.3s ease;
+  z-index: 999;
+}
+
+.side-menu.open {
+  left: 0;
+}
+
+.menu-item {
+  display: block;
+  padding: 12px 20px;
+  color: #303030;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.menu-item:hover {
+  background: #cfcfcf;
+  color: #696969;                /* hover chữ DimGray */
+}
+
+/* User avatar */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #696969;     /* viền DimGray */
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Dropdown */
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 30px;
+  top: 70px;
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  min-width: 180px;
+  z-index: 2000;
+}
+
+.dropdown.show {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 15px;
+  color: #303030;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
+  color: #696969;
+}
+
+/* Hero */
+.hero {
+  padding: 60px 30px 20px;
+  text-align: center;
+}
+
+.hero h1 {
+  color: #303030;
+  font-size: 40px;        /* ★ ĐÃ CHỈNH: tiêu đề to hơn */
+  font-weight: 700;       /* in đậm hơn */
+  margin-bottom: 10px;
+}
+
+.hero-content span {
+  color: #696969;                /* “EV Trading Platform ⚡” DimGray */
+}
+
+.hero p {
+  color: #303030;
+}
+
+/* CTA Button */
+.cta-btn {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #696969;           /* nút chính DimGray */
+  color: #ffffff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  border: none;
+}
+
+.cta-btn:hover {
+  opacity: 0.9;
+}
+
+/* Categories */
+.categories {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px 30px 80px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  text-align: center;
+  width: 260px;
+  border: 1px solid #dcdcdc;
+}
+
+.card h3 {
+  color: #303030;
+}
+
+.card p {
+  color: #303030;
+}
+
+.card img {
+  width: 64px;
+  height: 64px;
+}
+
+/* Button trong card */
+.card .btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #696969;           /* nút DimGray */
+  color: #ffffff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  border: none;
+}
+
+.card .btn:hover {
+  opacity: 0.9;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 12px 0;
+  background: #ffffff;
+  border-top: 1px solid #dcdcdc;
+  color: #303030;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 0.9em;
+}
+/* ==== Auth (Login/Register) ==== */
+
+.auth-wrapper {
+  min-height: calc(100vh - 140px); /* trừ header + footer */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px 80px;
+  background-color: #ffffff;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 26px 26px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+  border: 1px solid #dcdcdc;
+}
+
+.auth-box h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  color: #303030;
+}
+
+.auth-subtitle {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: #707070;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: #303030;
+}
+
+.form-group input {
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  font-size: 13px;
+  outline: none;
+  color: #303030;
+}
+
+.form-group input:focus {
+  border-color: #696969;
+  box-shadow: 0 0 0 2px rgba(105,105,105,0.08);
+}
+
+.form-extra {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.link-small {
+  font-size: 11px;
+  color: #696969;
+  text-decoration: none;
+}
+
+.link-small:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #696969;
+  color: #ffffff;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  opacity: 0.92;
+}
+
+.btn-outline {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  background-color: #ffffff;
+  color: #303030;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.btn-outline:hover {
+  border-color: #696969;
+  color: #696969;
+}
+
+.full-width {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.or {
+  text-align: center;
+  margin: 14px 0 6px;
+  font-size: 11px;
+  color: #808080;
+}
+
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #d9534f;
+}
+
+.auth-bottom {
+  text-align: center;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.auth-bottom a {
+  color: #696969;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-bottom a:hover {
+  text-decoration: underline;
+}
+
+/* ===== POSTS SECTION ===== */
+.posts-section {
+  width: 95%;              /* ★ ĐÃ CHỈNH: rộng hơn 90% */
+  max-width: 1400px;       /* ★ ĐÃ CHỈNH: cho phép giãn tới 1400px, gần full màn hình */
+  margin: 30px auto 80px;
+}
+
+.posts-title {
+  text-align: center;
+  margin-bottom: 24px;     /* ★ ĐÃ CHỈNH */
+  color: #696969;
+  font-size: 24px;         /* ★ ĐÃ CHỈNH: tiêu đề bảng tin to hơn */
+  font-weight: 600;
+}
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* ★ ĐÃ CHỈNH: card rộng hơn (tối thiểu 320px) */
+  gap: 20px;                                                  /* ★ ĐÃ CHỈNH: khoảng cách thoáng hơn */
+}
+
+.post-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  border: 1px solid #e0e0e0;
+}
+
+.post-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.post-meta {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 4px 0 6px;
+}
+
+.post-price {
+  font-weight: 600;
+  color: #303030;
+  margin-bottom: 10px;
+}
+
+/* ===== BỘ LỌC ===== */
+.posts-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-input {
+  padding: 12px 14px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #c9c9c9;
+  flex: 1;
+  min-width: 250px;
+}
+
+.filter-select {
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #c9c9c9;
+}
+
+.filter-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: #696969;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.filter-btn:hover {
+  opacity: 0.9;
+}
+
+.filter-reset {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #d9534f;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.filter-reset:hover {
+  background: #c9302c;
+}
