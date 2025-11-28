@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Khiếu nại</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <button class="menu-btn" id="menuToggle">☰</button>
+    <div class="site-title">⚡ EV Trading</div>
+    <div style="position: relative;">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar" id="userAvatar">
+        <div class="dropdown" id="userDropdown">
+            <a href="/" class="dropdown-item">Trang chủ</a>
+            <a href="/logout" class="dropdown-item">Đăng xuất</a>
+        </div>
+    </div>
+</header>
+
+<nav class="side-menu" id="sideMenu">
+    <a href="/" class="menu-item">Trang chủ</a>
+    <a href="/admin/dashboard" class="menu-item">Tổng quan</a>
+    <a href="/admin/complaint" class="menu-item active">Khiếu nại
+        <span th:if="${complaintCount > 0}" class="badge-count" th:text="${complaintCount}"></span>
+    </a>
+    <a href="/logout" class="menu-item" style="border-top: 1px solid #bbb; margin-top: 10px;">Đăng xuất</a>
+</nav>
+
+<div class="dashboard-container">
+
+    <h3 style="color: #303030; margin-bottom: 25px; font-weight: 700; font-size: 24px; text-align: center;">
+        Danh sách báo cáo vi phạm
+    </h3>
+
+    <div class="complaint-card">
+        <div class="table-responsive" style="box-shadow: none; border: none; padding: 0;">
+            <table class="complaint-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                <tr>
+                    <th style="padding-left: 25px;">Người báo cáo</th>
+                    <th>Bài viết báo cáo</th>
+                    <th>Lý do</th>
+                    <th>Ngày báo</th>
+                    <th style="text-align: right; padding-right: 25px;">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${complaints}">
+                    <td style="padding-left: 25px;">
+                        <div class="info-group">
+                            <span class="info-main" th:text="${c.reporter.name}">Nguyễn Văn A</span>
+                            <span class="info-sub" th:text="${c.reporter.email}">email@example.com</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="info-group" th:if="${c.post != null}">
+                            <a th:href="@{/posts/{id}(id=${c.post.id})}" target="_blank"
+                               class="info-main" style="color: #00b26f; font-size: 15px;">
+                                <span th:text="${c.post.title}">Tiêu đề bài viết</span>
+                                <i class="fas fa-external-link-alt" style="font-size: 10px; margin-left: 4px;"></i>
+                            </a>
+                            <span class="info-sub" th:text="'Người bán: ' + ${c.post.user.name}">Seller Name</span>
+                        </div>
+
+                        <div class="info-group" th:if="${c.post == null}">
+                            <span class="info-main" style="color: #999; text-decoration: line-through;">Bài viết đã xóa</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="reason-box">
+                            <span th:text="${c.reason}">Lý do lừa đảo...</span>
+                        </div>
+                    </td>
+
+                    <td>
+                                <span class="info-sub" style="font-size: 13px;"
+                                      th:text="${#dates.format(c.createdAt, 'dd/MM/yyyy')}">01/01/2025</span>
+                    </td>
+
+                    <td style="text-align: right; padding-right: 25px;">
+
+                        <div th:if="${c.status == 'PENDING'}" class="btn-action-group" style="justify-content: flex-end;">
+                            <form th:action="@{/admin/complaint/dismiss/{id}(id=${c.id})}" method="post">
+                                <button class="btn-icon-large btn-dismiss" title="Báo cáo sai - Bỏ qua">
+                                    <i class="fas fa-shield-alt"></i>
+                                </button>
+                            </form>
+
+                            <form th:action="@{/admin/complaint/accept/{id}(id=${c.id})}" method="post"
+                                  onsubmit="return confirm('Xác nhận ĐÁNH DẤU VI PHẠM bài này?');">
+                                <button class="btn-icon-large btn-punish" title="Xác nhận vi phạm">
+                                    <i class="fas fa-gavel"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div th:if="${c.status == 'RESOLVED'}">
+                             <span class="status-badge status-approved">
+                             <i class="fas fa-check-double"></i>Đã xử lý
+                             </span>
+                        </div>
+
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(complaints)}">
+                    <td colspan="5" style="text-align: center; padding: 50px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" width="80" style="opacity: 0.5; margin-bottom: 15px;">
+                        <p style="color: #999;">Không có khiếu nại nào cần xử lý.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="footer">
+        © 2025 EV Trading Platform ⚡ — Nền tảng giao dịch xe điện &amp; pin đã qua sử dụng
+    </footer>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const userAvatar = document.getElementById('userAvatar');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (menuToggle && sideMenu) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sideMenu.classList.toggle('open');
+            });
+        }
+        if (userAvatar && userDropdown) {
+            userAvatar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+        }
+        document.addEventListener('click', (e) => {
+            if (sideMenu && sideMenu.classList.contains('open') && !sideMenu.contains(e.target) && !menuToggle.contains(e.target)) sideMenu.classList.remove('open');
+            if (userDropdown && userDropdown.classList.contains('show') && !userAvatar.contains(e.target) && !userDropdown.contains(e.target)) userDropdown.classList.remove('show');
+        });
+    });
+</script>
+</body>
+</html>

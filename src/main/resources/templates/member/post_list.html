@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bảng tin EV Trading</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/script.js}" defer></script>
+</head>
+<body>
+
+<!-- Header chung -->
+<div th:replace="fragments/header :: header"></div>
+
+<main class="page-container">
+    <!-- Dùng lại phần bảng tin từ index.html -->
+    <div th:replace="index :: postsSection"></div>
+</main>
+
+</body>
+</html>

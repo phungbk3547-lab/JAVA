@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Cá nhân | Hệ thống Thành viên</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>👋 Chào mừng đến với Trang Cá nhân</h1>
+    <hr>
+
+    <p sec:authorize="isAuthenticated()">
+        Bạn đã đăng nhập thành công với tư cách:
+        <strong><span sec:authentication="name">Tên người dùng</span></strong>
+    </p>
+
+    <p>
+        Vai trò của bạn trong hệ thống là:
+        <strong><span sec:authentication="authorities">ROLE_USER</span></strong>
+    </p>
+
+    <hr>
+
+    <h2>Thông tin chi tiết (Ví dụ)</h2>
+    <ul>
+        <li>Email: <span sec:authentication="name">user@example.com</span></li>
+        <li>Trạng thái: Đã xác thực</li>
+    </ul>
+
+    <br>
+    <a href="/" class="btn">Về Trang chủ</a>
+    <a th:href="@{/logout}" class="btn btn-danger">Đăng xuất</a>
+</div>
+</body>
+</html>
