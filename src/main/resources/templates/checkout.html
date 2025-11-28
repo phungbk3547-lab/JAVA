@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận thanh toán</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #fdfbff, #f3faff);
+            min-height: 100vh;
+        }
+
+        .checkout-shell {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 12px;
+        }
+
+        .checkout-card {
+            max-width: 720px;
+            width: 100%;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 14px 32px rgba(0,0,0,0.06);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: all .35s ease;
+        }
+
+        .checkout-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .checkout-header-full {
+            background: linear-gradient(135deg, #53d38b, #2ab4c0);
+        }
+
+        .checkout-header-deposit {
+            background: linear-gradient(135deg, #ffd460, #ff9a62);
+        }
+
+        .badge-type {
+            font-size: 0.8rem;
+            border-radius: 999px;
+            padding: 4px 12px;
+        }
+
+        .summary-box {
+            background: #f9fbff;
+            border-radius: 16px;
+            padding: 14px 16px 8px;
+            border: 1px dashed rgba(144,164,174,0.6);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            margin-top: 6px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(144,164,174,0.7);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .amount-highlight {
+            font-size: 1.4rem;
+            color: #e53935;
+        }
+
+        .btn-main {
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-weight: 600;
+        }
+
+        .btn-pay {
+            background: linear-gradient(135deg, #3ed6a6, #2fb1e0);
+            border: none;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(47,177,224,0.35);
+        }
+
+        .btn-pay:hover {
+            filter: brightness(0.96);
+        }
+
+        .btn-ghost {
+            border-radius: 999px;
+            border: 1px solid rgba(158,158,158,0.4);
+            background: rgba(255,255,255,0.85);
+            color: #5f6368;
+        }
+
+        .small-note {
+            font-size: 0.8rem;
+            color: #757575;
+        }
+    </style>
+</head>
+<body>
+
+<div class="checkout-shell">
+    <div class="card checkout-card" id="checkoutCard">
+        <!-- HEADER: FULL / DEPOSIT giữ nguyên logic paymentType -->
+        <div class="card-header text-white text-center py-3"
+             th:classappend="${paymentType == 'FULL'} ? ' checkout-header-full' : ' checkout-header-deposit'">
+            <h3 class="mb-1" th:text="${paymentType == 'FULL' ? 'Xác nhận Mua' : 'Xác nhận Đặt Cọc'}"></h3>
+            <span class="badge badge-type bg-light text-dark"
+                  th:text="${paymentType == 'FULL' ? 'Thanh toán 100%' : 'Đặt cọc 10%'}">
+                Thanh toán
+            </span>
+        </div>
+
+        <div class="card-body p-4">
+            <div th:if="${post != null}">
+                <!-- Tiêu đề -->
+                <h4 class="text-center mb-3" th:text="${post.title}"></h4>
+
+                <!-- Tóm tắt giá -->
+                <div class="summary-box mb-3">
+                    <div class="summary-row">
+                        <span>Giá trị xe:</span>
+                        <strong th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                            0 VNĐ
+                        </strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Loại thanh toán:</span>
+                        <span th:text="${paymentType == 'FULL' ? 'Thanh toán toàn bộ (100%)' : 'Đặt cọc (10%)'}">
+                            Đặt cọc (10%)
+                        </span>
+                    </div>
+                    <div class="summary-row total">
+                        <span th:text="${paymentType == 'FULL' ? 'Số tiền thanh toán:' : 'Số tiền cần cọc:'}">
+                            Số tiền thanh toán:
+                        </span>
+                        <span class="amount-highlight"
+                              th:text="${#numbers.formatDecimal(amountToPay, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                            0 VNĐ
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Ghi chú -->
+                <p class="small-note text-center mb-2" th:if="${paymentType == 'DEPOSIT'}">
+                    Sau khi đặt cọc, xe sẽ được giữ cho bạn. Phần còn lại thanh toán trực tiếp với người bán khi nhận xe.
+                </p>
+                <p class="small-note text-center mb-2" th:if="${paymentType == 'FULL'}">
+                    Bạn đang thanh toán toàn bộ giá trị xe. Vui lòng kiểm tra hạn mức / số dư tài khoản ngân hàng trước khi xác nhận.
+                </p>
+
+                <!-- FORM THANH TOÁN – GIỮ NGUYÊN ACTION -->
+                <form action="/transactions/pay" method="post" class="mt-4" id="payForm">
+                    <input type="hidden" name="amount" th:value="${amountToPay}">
+                    <input type="hidden" name="postId" th:value="${post.id}">
+
+                    <button type="submit"
+                            class="btn btn-main btn-pay w-100 mb-2"
+                            id="payButton">
+                        <span id="payButtonText">💳 Quét QR thanh toán ngay</span>
+                        <span id="paySpinner"
+                              class="spinner-border spinner-border-sm ms-2"
+                              style="display:none;"
+                              role="status" aria-hidden="true"></span>
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-main btn-ghost w-100"
+                            th:href="@{/posts/{id}(id=${post.id})}"
+                            onclick="window.history.back()">
+                        ← Hủy / quay lại
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Fade-in card + loading state khi submit form
+    document.addEventListener('DOMContentLoaded', function () {
+        const card = document.getElementById('checkoutCard');
+        setTimeout(() => card.classList.add('show'), 60);
+
+        const form = document.getElementById('payForm');
+        const btn = document.getElementById('payButton');
+        const text = document.getElementById('payButtonText');
+        const spinner = document.getElementById('paySpinner');
+
+        if (form && btn) {
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                text.textContent = 'Đang tạo mã QR...';
+                spinner.style.display = 'inline-block';
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

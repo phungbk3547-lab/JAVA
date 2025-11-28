@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa hồ sơ | EV Trading</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="profile-edit-page">
+    <div class="profile-edit-card">
+
+        <h1>Sửa hồ sơ</h1>
+
+        <!-- Bind vào updatedUser đúng với @ModelAttribute -->
+        <form th:object="${updatedUser}"
+              th:action="@{/member/profile/update}"
+              method="post"
+              enctype="multipart/form-data"
+              class="profile-edit-form">
+
+            <!-- Avatar + nút chọn file (phần file backend bạn xử lý sau) -->
+            <div class="profile-edit-avatar">
+                <div class="avatar-circle">
+                    <span class="avatar-letter"
+                          th:text="${#strings.substring(updatedUser.name, 0, 1).toUpperCase()}">
+                        U
+                    </span>
+                </div>
+
+                <div class="avatar-edit-right">
+                    <p>Ảnh đại diện</p>
+                    <input type="file" name="avatar" accept="image/*">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Họ và tên</label>
+                <input id="name" type="text" th:field="*{name}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Số điện thoại</label>
+                <input id="phone" type="text" th:field="*{phone}">
+            </div>
+
+            <div class="profile-edit-actions">
+                <button type="submit" class="btn post-btn-primary">Lưu thay đổi</button>
+                <a th:href="@{/member/profile}" class="btn post-btn-cancel">Hủy</a>
+            </div>
+        </form>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,74 +1,62 @@
+<!-- src/main/resources/templates/fragments/header.html -->
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Header</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <script th:src="@{/js/script.js}" defer></script>
+</head>
+
 <body>
-
 <div th:fragment="header">
+    <header class="topbar">
+        <div class="topbar-inner">
 
-    <header class="navbar">
-        <button class="menu-btn" id="menuToggle">☰</button>
-        <div class="site-title">⚡ EV Trading</div>
-        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-             alt="user" class="user-avatar" id="userAvatar">
+            <!-- BÊN TRÁI: LOGO + SEARCH -->
+            <div class="topbar-left">
+                <a th:href="@{/home}" class="brand">
+                    <span class="brand-icon">⚡</span>
+                    <span class="brand-text">EV Trading</span>
+                </a>
+
+                <!-- Form Search -->
+                <form class="top-search" th:action="@{/home}" method="get">
+                    <input type="text"
+                           name="q"
+                           placeholder="Tìm xe điện, pin, địa điểm..."
+                           th:value="${q}">
+                    <button type="submit" class="top-search-btn">Tìm</button>
+                </form>
+            </div>
+
+            <!-- BÊN PHẢI: LOGIN / USER -->
+            <div class="topbar-right">
+
+                <!-- Nếu CHƯA đăng nhập -->
+                <div sec:authorize="isAnonymous()" class="auth-buttons">
+                    <a th:href="@{/login}" class="btn-auth btn-auth-outline">Đăng nhập</a>
+                    <a th:href="@{/register}" class="btn-auth btn-auth-main">Đăng ký</a>
+                </div>
+
+                <!-- Nếu ĐÃ đăng nhập -->
+                <div sec:authorize="isAuthenticated()" class="user-menu">
+                    <span class="user-name" sec:authentication="name"></span>
+
+                    <form th:action="@{/logout}" method="post" class="logout-form">
+                        <button type="submit" class="btn-logout">
+                            Đăng xuất
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
     </header>
-
-    <!-- Side Menu -->
-    <nav class="side-menu" id="sideMenu">
-        <a href="/" class="menu-item">Trang chủ</a>
-        <a href="/" class="menu-item">Bảng tin</a>
-
-        <!-- Guest -->
-        <div th:if="${session.user == null}">
-            <a href="/market" class="menu-item">Thị trường xe</a>
-            <a href="/battery" class="menu-item">Thị trường pin</a>
-            <a href="/admin" class="menu-item">Quản trị</a>
-            <a href="/about" class="menu-item">Giới thiệu</a>
-        </div>
-
-        <!-- USER -->
-        <div th:if="${session.user != null && session.user.role == 'USER'}">
-            <a href="/market" class="menu-item">Thị trường xe</a>
-            <a href="/battery" class="menu-item">Thị trường pin</a>
-            <a href="/transactions" class="menu-item">Giao dịch</a>
-            <a href="/about" class="menu-item">Giới thiệu</a>
-        </div>
-
-        <!-- ADMIN -->
-        <div th:if="${session.user != null && session.user.role == 'ADMIN'}">
-            <a href="/admin/dashboard" class="menu-item">Quản trị</a>
-            <a href="/complaints" class="menu-item">Khiếu nại</a>
-            <a href="/statistics" class="menu-item">Thống kê</a>
-            <a href="/about" class="menu-item">Giới thiệu</a>
-        </div>
-    </nav>
-
-    <!-- User Dropdown -->
-    <div class="dropdown" id="userDropdown">
-
-        <!-- Guest -->
-        <div th:if="${session.user == null}">
-            <a href="/login" class="dropdown-item">Đăng nhập</a>
-            <a href="/register" class="dropdown-item">Đăng ký</a>
-            <a href="/forgot-password" class="dropdown-item">Quên mật khẩu</a>
-            <!-- Không có Bảng tin ở đây nữa -->
-        </div>
-
-        <!-- USER -->
-        <div th:if="${session.user != null && session.user.role == 'USER'}">
-            <a href="/profile" class="dropdown-item"
-               th:text="${session.user.name}"></a>
-            <!-- Chỉ còn Đăng tin mới + Đăng xuất -->
-            <a href="/posts/new" class="dropdown-item">Đăng tin mới</a>
-            <a href="/logout" class="dropdown-item">Đăng xuất</a>
-        </div>
-
-        <!-- ADMIN -->
-        <div th:if="${session.user != null && session.user.role == 'ADMIN'}">
-            <a href="/admin/dashboard" class="dropdown-item">Dashboard</a>
-            <a href="/logout" class="dropdown-item">Đăng xuất</a>
-        </div>
-    </div>
-
 </div>
-
 </body>
 </html>

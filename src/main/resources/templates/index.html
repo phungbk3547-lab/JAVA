@@ -9,25 +9,26 @@
 <body>
 
 <!-- Header -->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <!-- HERO -->
 <section class="hero">
     <div class="hero-content">
         <h1>Chào mừng đến với <span>EV Trading Platform ⚡</span></h1>
         <p>Khám phá các xe điện và pin đã qua sử dụng được đăng mới nhất hôm nay!</p>
-        <!-- ĐÃ BỎ NÚT "Khám phá thị trường" -->
     </div>
 </section>
 
 <!-- ⭐ BẢNG TIN + BỘ LỌC -->
-<section class="posts-section" th:if="${posts != null}">
+<section class="posts-section"
+         th:if="${posts != null}"
+         th:fragment="postsSection">
 
     <div class="posts-header">
         <h2 class="posts-title">Bảng tin xe điện &amp; pin mới nhất</h2>
 
         <form class="posts-filter" th:action="@{/}" method="get">
-
+            <!-- ô tìm kiếm: nếu q null thì rỗng -->
             <input type="text"
                    name="q"
                    class="filter-input"
@@ -35,7 +36,8 @@
                    th:value="${q}">
 
             <select name="type" class="filter-select">
-                <option value="" th:selected="${type == null or type == ''}">
+                <option value=""
+                        th:selected="${type == null or type == ''}">
                     Tất cả loại tin
                 </option>
                 <option value="EV" th:selected="${type == 'EV'}">Xe điện</option>
@@ -45,8 +47,7 @@
             <button type="submit" class="filter-btn">Lọc</button>
 
             <!-- ⭐ NÚT RESET -->
-            <a href="/" class="filter-reset">Reset</a>
-
+            <a th:href="@{/}" class="filter-reset">Reset</a>
         </form>
     </div>
 
@@ -55,25 +56,28 @@
         <div class="post-card" th:each="p : ${posts}">
 
             <img th:if="${p.imagePath != null}"
-                 th:src="${p.imagePath}"
+                 th:src="@{${p.imagePath}}"
                  alt="Ảnh tin"
                  class="post-image">
 
-            <h3 class="post-title" th:text="${p.title}"></h3>
+            <h3 class="post-title" th:text="${p.title}">Tiêu đề</h3>
 
             <p class="post-meta">
-                <span th:text="${p.location}"></span>
+                <span th:text="${p.location}">Địa điểm</span>
                 •
                 <span th:text="${p.category == 'EV' ? 'Xe điện' :
-                                (p.category == 'PIN' ? 'Pin năng lượng' : p.category)}"></span>
+                                (p.category == 'PIN' ? 'Pin năng lượng' : p.category)}">
+                    Loại tin
+                </span>
             </p>
 
             <p class="post-price"
                th:if="${p.price != null}"
-               th:text="${#numbers.formatDecimal(p.price, 0, 'POINT', 0, 'POINT')} + ' đ'">
+               th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                0 đ
             </p>
 
-            <a th:href="@{'/posts/' + ${p.id}}" class="btn-outline">Xem chi tiết</a>
+            <a th:href="@{|/posts/${p.id}|}" class="btn-outline">Xem chi tiết</a>
         </div>
     </div>
 

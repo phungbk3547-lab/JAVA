@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tin của tôi | EV Trading</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container my-posts-page">
+
+    <div class="my-posts-header">
+        <h1>Tin đăng của tôi</h1>
+
+        <div class="actions">
+            <a th:href="@{/member/posts/new}"
+               class="btn pastel-add-btn">+ Đăng tin mới</a>
+        </div>
+    </div>
+
+    <div class="my-posts-table-wrapper">
+        <table class="table my-posts-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>Giá</th>
+                <th>Địa điểm</th>
+                <th>Ngày đăng</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(posts)}">
+                <td colspan="7">Bạn chưa có bài đăng nào.</td>
+            </tr>
+
+            <tr th:each="post : ${posts}">
+                <td th:text="${post.id}">1</td>
+                <td>
+                    <a th:href="@{|/posts/${post.id}|}"
+                       th:text="${post.title}">Tiêu đề</a>
+                </td>
+                <td th:text="${post.price}">0</td>
+                <td th:text="${post.location}">TP.HCM</td>
+                <td th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">
+                    01/01/2025
+                </td>
+                <td th:text="${post.status}">PENDING</td>
+                <td class="my-posts-actions">
+                    <a th:href="@{|/member/posts/${post.id}/edit|}"
+                       class="btn btn-small btn-secondary">Sửa</a>
+
+                    <form th:action="@{|/member/deletePost/${post.id}|}"
+                          method="post"
+                          style="display:inline"
+                          onsubmit="return confirm('Bạn có chắc muốn xóa bài này?');">
+                        <button type="submit"
+                                class="btn btn-danger btn-small">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

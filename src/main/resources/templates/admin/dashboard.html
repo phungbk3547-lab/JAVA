@@ -2,195 +2,265 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Admin Dashboard | EV Trading</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/script.js}" defer></script>
 </head>
-<body>
+<body class="admin-body">
 
-<header class="navbar">
-    <button class="menu-btn" id="menuToggle">☰</button>
-    <div class="site-title">⚡ EV Trading</div>
-    <div style="position: relative;">
-        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar" id="userAvatar">
-        <div class="dropdown" id="userDropdown">
-            <a href="/" class="dropdown-item">Trang chủ</a>
-            <a href="/logout" class="dropdown-item">Đăng xuất</a>
+<!-- DÙNG CHUNG HEADER VỚI HOME -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="app-shell">
+
+    <!-- MENU TRÁI RIÊNG CHO ADMIN -->
+    <aside class="side-nav admin-side-nav">
+        <div class="side-nav-group">
+            <div class="side-nav-title">Quản trị</div>
+
+            <a th:href="@{/admin/dashboard}" class="side-link active">
+                <i class="fa-solid fa-gauge-high"></i> Tổng quan
+            </a>
+
+            <a th:href="@{/admin/complaint}" class="side-link">
+                <i class="fa-solid fa-flag"></i> Khiếu nại
+                <span th:if="${complaintCount > 0}"
+                      class="badge-count"
+                      th:text="${complaintCount}">0</span>
+            </a>
+
+            <a th:href="@{/logout}" class="side-link">
+                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+            </a>
         </div>
-    </div>
-</header>
+    </aside>
 
-<nav class="side-menu" id="sideMenu">
-    <a href="/" class="menu-item">Trang chủ</a>
-    <a href="/admin/dashboard" class="menu-item active">Tổng quan</a>
-    <a href="/admin/complaint" class="menu-item">Khiếu nại
-        <span th:if="${complaintCount > 0}" class="badge-count" th:text="${complaintCount}"></span>
-    </a>
-    <a href="/logout" class="menu-item" style="border-top: 1px solid #bbb; margin-top: 10px;">Đăng xuất</a>
-</nav>
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="app-content admin-content">
 
-<div class="dashboard-container">
+        <h1 class="admin-heading">Tổng quan hoạt động</h1>
+        <p class="admin-subtitle">
+            Theo dõi nhanh thành viên, số tin đăng và các báo cáo vi phạm trên EV Trading.
+        </p>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon icon-blue"><i class="fas fa-users"></i></div>
-            <div class="stat-info"><h3 th:text="${totalUsers}">0</h3><p>Thành viên</p></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-green"><i class="fas fa-check-circle"></i></div>
-            <div class="stat-info"><h3 th:text="${activeCount}">0</h3><p>Tin đang bán</p></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-yellow"><i class="fas fa-clock"></i></div>
-            <div class="stat-info"><h3 th:text="${pendingCount}">0</h3><p>Chờ duyệt</p></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-red"><i class="fas fa-exclamation-triangle"></i></div>
-            <div class="stat-info"><h3 th:text="${complaintCount}">0</h3><p>Khiếu nại</p></div>
-        </div>
-    </div>
-
-    <div class="charts-row">
-
-        <div class="chart-card" style="flex: 1.2;">
-            <div class="chart-title">Thống kê tin đăng</div>
-            <div class="chart-wrapper">
-                <canvas id="postChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-card user-data-card" style="flex: 1;">
-            <div class="user-card-header">
-                <div class="card-title-box">
-                    <i class="fas fa-address-book"></i> User Data
+        <!-- ==== CARDS THỐNG KÊ ==== -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue">
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="card-filter">
-                    <select class="mini-select"><option>All Time</option></select>
+                <div class="stat-info">
+                    <h3 th:text="${totalUsers}">0</h3>
+                    <p>Thành viên</p>
                 </div>
             </div>
 
-            <div class="user-list-container">
-                <table class="user-table">
-                    <thead>
-                    <tr>
-                        <th style="width: 30px;"><input type="checkbox"></th>
-                        <th>NAME</th>
-                        <th>ROLE</th>
-                        <th>TYPE</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="u : ${recentUsers}">
-                        <td><input type="checkbox"></td>
-                        <td>
-                            <div class="user-info">
-                                <div class="u-name" th:text="${u.name}">User Name</div>
-                                <div class="u-email" th:text="${u.email}">email@example.com</div>
-                            </div>
-                        </td>
-                        <td>
-                            <span th:if="${u.role == 'ADMIN'}" class="role-badge role-admin">Admin</span>
-                            <span th:if="${u.role == 'USER'}" class="role-badge role-user">User</span>
-                        </td>
-                        <td>
-                            <select class="type-select" th:if="${u.role == 'ADMIN'}">
-                                <option>Full Control</option>
-                            </select>
-                            <select class="type-select" th:if="${u.role == 'USER'}">
-                                <option>Post Only</option>
-                                <option>View Only</option>
-                            </select>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="stat-card">
+                <div class="stat-icon icon-green">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 th:text="${activeCount}">0</h3>
+                    <p>Tin đang bán</p>
+                </div>
             </div>
 
-            <div class="user-card-footer">
-                <button class="btn-load-more">LOAD MORE</button>
+            <div class="stat-card">
+                <div class="stat-icon icon-yellow">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 th:text="${pendingCount}">0</h3>
+                    <p>Tin chờ duyệt</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-pink">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 th:text="${complaintCount}">0</h3>
+                    <p>Khiếu nại</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <h3 style="color: #696969; margin-bottom: 15px; margin-top: 30px; font-weight: 700;">
-        <i class="fas fa-tasks"></i> Kiểm duyệt tin đăng
-    </h3>
+        <!-- ==== BIỂU ĐỒ + USER DATA ==== -->
+        <div class="charts-row">
 
-    <div class="table-responsive">
-        <table class="admin-table">
-            <thead>
-            <tr>
-                <th>Ngày đăng</th>
-                <th>Tiêu đề</th>
-                <th>Loại</th>
-                <th>Giá (VNĐ)</th>
-                <th>Trạng thái</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="post : ${allPosts}">
-                <td th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">...</td>
+            <!-- Chart -->
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fa-solid fa-chart-column"></i> Thống kê tin đăng
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="postChart"></canvas>
+                </div>
+            </div>
 
-                <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
-                    th:text="${post.title}" title="${post.title}">...</td>
-
-                <td>
-                    <span th:if="${post.category == 'EV'}" style="color:#00b26f; font-weight:bold">Xe điện</span>
-                    <span th:if="${post.category == 'PIN'}" style="color:#f0ad4e; font-weight:bold">Pin</span>
-                </td>
-
-                <td th:text="${#numbers.formatDecimal(post.price, 0, 'COMMA', 0, 'POINT')}">...</td>
-
-                <td>
-                    <div th:if="${post.status == 'PENDING'}">
-                        <form th:action="@{/admin/post/approve/{id}(id=${post.id})}" method="post" style="display:inline;">
-                            <button class="action-btn btn-check" title="Duyệt đăng bài">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </form>
-                        <form th:action="@{/admin/post/reject/{id}(id=${post.id})}" method="post" style="display:inline;"
-                              onsubmit="return confirm('Xác nhận đánh dấu bài này là VI PHẠM?');">
-                            <button class="action-btn btn-x" title="Báo vi phạm">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </form>
+            <!-- Bảng user -->
+            <div class="chart-card user-data-card">
+                <div class="user-card-header">
+                    <div class="card-title-box">
+                        <i class="fas fa-address-book"></i> User Data
                     </div>
-
-                    <div th:if="${post.status == 'APPROVED'}">
-                                <span class="status-badge status-approved">
-                                    <i class="fas fa-check-circle"></i> Đã đăng
-                                </span>
+                    <div class="card-filter">
+                        <select class="mini-select">
+                            <option>All Time</option>
+                        </select>
                     </div>
+                </div>
 
-                    <div th:if="${post.status == 'REJECTED'}">
-                                <span class="status-badge status-rejected">
-                                    <i class="fas fa-ban"></i> Vi phạm
-                                </span>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                <div class="user-list-container">
+                    <table class="user-table">
+                        <thead>
+                        <tr>
+                            <th style="width:30px;">
+                                <input type="checkbox">
+                            </th>
+                            <th>NAME</th>
+                            <th>ROLE</th>
+                            <th>TYPE</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="u : ${recentUsers}">
+                            <td><input type="checkbox"></td>
+                            <td>
+                                <div class="user-info">
+                                    <div class="u-name" th:text="${u.name}">User Name</div>
+                                    <div class="u-email" th:text="${u.email}">email@example.com</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:if="${u.role == 'ADMIN'}"
+                                      class="role-badge role-admin">Admin</span>
+                                <span th:if="${u.role == 'USER'}"
+                                      class="role-badge role-user">User</span>
+                            </td>
+                            <td>
+                                <select class="type-select" th:if="${u.role == 'ADMIN'}">
+                                    <option>Full Control</option>
+                                </select>
+                                <select class="type-select" th:if="${u.role == 'USER'}">
+                                    <option>Post Only</option>
+                                    <option>View Only</option>
+                                </select>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-    <footer class="footer">
-        © 2025 EV Trading Platform ⚡ — Nền tảng giao dịch xe điện &amp; pin đã qua sử dụng
-    </footer>
+                <div class="user-card-footer">
+                    <button class="btn-load-more">LOAD MORE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==== BẢNG KIỂM DUYỆT ==== -->
+        <h2 class="section-heading">
+            <i class="fas fa-list-check"></i> Kiểm duyệt tin đăng
+        </h2>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Ngày đăng</th>
+                    <th>Tiêu đề</th>
+                    <th>Loại</th>
+                    <th>Giá (VNĐ)</th>
+                    <th>Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${allPosts}">
+                    <td th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">
+                        01/01/2025
+                    </td>
+
+                    <td class="td-title"
+                        th:text="${post.title}"
+                        th:title="${post.title}">
+                        Tiêu đề tin
+                    </td>
+
+                    <td>
+                        <span th:if="${post.category == 'EV'}"
+                              class="tag tag-green">Xe điện</span>
+                        <span th:if="${post.category == 'PIN'}"
+                              class="tag tag-blue">Pin</span>
+                        <span th:if="${post.category != 'EV' and post.category != 'PIN'}"
+                              class="tag tag-gray"
+                              th:text="${post.category}">Khác</span>
+                    </td>
+
+                    <td th:text="${#numbers.formatDecimal(post.price, 0, 'COMMA', 0, 'POINT')}">
+                        0
+                    </td>
+
+                    <td>
+                        <!-- Chờ duyệt -->
+                        <div th:if="${post.status == 'PENDING'}">
+                            <form th:action="@{/admin/post/approve/{id}(id=${post.id})}"
+                                  method="post" style="display:inline;">
+                                <button class="action-btn btn-check"
+                                        title="Duyệt đăng bài">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+
+                            <form th:action="@{/admin/post/reject/{id}(id=${post.id})}"
+                                  method="post" style="display:inline;"
+                                  onsubmit="return confirm('Xác nhận đánh dấu bài này là VI PHẠM?');">
+                                <button class="action-btn btn-x"
+                                        title="Báo vi phạm">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Đã duyệt -->
+                        <div th:if="${post.status == 'APPROVED'}">
+                            <span class="status-badge status-approved">
+                                <i class="fas fa-check-circle"></i> Đã đăng
+                            </span>
+                        </div>
+
+                        <!-- Vi phạm -->
+                        <div th:if="${post.status == 'REJECTED'}">
+                            <span class="status-badge status-rejected">
+                                <i class="fas fa-ban"></i> Vi phạm
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="footer admin-footer">
+            © 2025 EV Trading Platform ⚡ — Bảng điều khiển quản trị
+        </footer>
+    </main>
 </div>
 
-<script src="/js/script.js"></script>
+<!-- ChartJS riêng cho dashboard -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-
-        // --- 1. BIỂU ĐỒ CỘT: THỐNG KÊ TIN ĐĂNG ---
+    document.addEventListener("DOMContentLoaded", function () {
         const ctxPost = document.getElementById('postChart');
-
         if (ctxPost) {
-            const gradient = ctxPost.getContext('2d').createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, '#00b26f');  // Màu xanh chủ đạo (Đậm ở trên)
-            gradient.addColorStop(1, 'rgba(0, 178, 111, 0.1)'); // Nhạt dần xuống dưới (Trong suốt)
+            const g = ctxPost.getContext('2d').createLinearGradient(0, 0, 0, 260);
+            g.addColorStop(0, '#63BFF4');      // xanh dương nhạt
+            g.addColorStop(1, 'rgba(99,191,244,0)');
 
             new Chart(ctxPost, {
                 type: 'bar',
@@ -199,36 +269,39 @@
                     datasets: [{
                         label: 'Tin đăng mới',
                         data: [3, 4, 1, 2],
-                        backgroundColor: gradient, // Dùng màu Xanh mới
-                        borderColor: '#00b26f',    // Viền cũng màu xanh
+                        backgroundColor: g,
+                        borderColor: '#63BFF4',
                         borderWidth: 1,
-                        borderRadius: 6,           // Bo tròn góc cột nhiều hơn xíu cho mềm mại
-                        barThickness: 35,          // Cột vừa vặn
-                        maxBarThickness: 50
+                        borderRadius: 10,
+                        barThickness: 40,
+                        maxBarThickness: 56
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }, // Ẩn chú thích
+                        legend: {display: false},
                         tooltip: {
-                            backgroundColor: '#303030', // Tooltip màu đen cho dễ đọc
+                            backgroundColor: '#1f2933',
                             titleColor: '#fff',
-                            bodyColor: '#fff',
-                            padding: 10,
-                            displayColors: false
+                            bodyColor: '#f9fafb',
+                            displayColors: false,
+                            padding: 10
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { borderDash: [4, 4], color: '#f0f0f0' }, // Lưới nét đứt mờ
-                            ticks: { color: '#888', font: {family: "'Poppins', sans-serif"} }
+                            grid: {
+                                color: 'rgba(148,163,184,0.35)',
+                                borderDash: [4, 4]
+                            },
+                            ticks: {color: '#6b7280'}
                         },
                         x: {
-                            grid: { display: false },
-                            ticks: { color: '#555', font: {family: "'Poppins', sans-serif", weight: '500'} }
+                            grid: {display: false},
+                            ticks: {color: '#4b5563'}
                         }
                     }
                 }

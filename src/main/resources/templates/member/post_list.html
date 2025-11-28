@@ -1,20 +1,45 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Bảng tin EV Trading</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <script th:src="@{/js/script.js}" defer></script>
+    <title>Danh sách tin | EV Trading</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
+
 <body>
 
-<!-- Header chung -->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-<main class="page-container">
-    <!-- Dùng lại phần bảng tin từ index.html -->
-    <div th:replace="index :: postsSection"></div>
+<main class="container">
+    <h1>Tất cả tin đăng</h1>
+
+    <section class="post-list">
+        <div th:if="${#lists.isEmpty(posts)}">
+            Chưa có bài đăng nào.
+        </div>
+
+        <div th:each="post : ${posts}" class="post-card">
+            <h2>
+                <a th:href="@{|/posts/${post.id}|}"
+                   th:text="${post.title}">Tiêu đề tin</a>
+            </h2>
+            <p th:text="${#strings.abbreviate(post.content, 150)}">
+                Mô tả ngắn...
+            </p>
+            <p class="post-meta">
+                <span th:text="${post.location}">Địa điểm</span> |
+                <strong th:text="${post.price}">0</strong> |
+                <span th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">
+                    01/01/2025
+                </span>
+            </p>
+        </div>
+    </section>
 </main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>

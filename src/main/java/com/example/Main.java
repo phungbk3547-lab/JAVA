@@ -18,7 +18,6 @@ public class Main {
         System.out.println("======================================");
         System.out.println("✅ Ứng dụng đã khởi động thành công!");
         System.out.println("🌐 Mở web tại: http://localhost:8080");
-        System.out.println("🧩 Form thêm bài: http://localhost:8080/guest/form");
         System.out.println("======================================");
     }
 }

@@ -1,101 +1,203 @@
-document.addEventListener("DOMContentLoaded", function() {
+// src/main/resources/static/js/script.js
+document.addEventListener("DOMContentLoaded", function () {
 
     // =========================================================
-    // 1. XỬ LÝ MENU SIDEBAR & DROPDOWN (Toggle Logic)
+    // 1. SIDEBAR & USER DROPDOWN
     // =========================================================
 
-    const menuToggle = document.getElementById('menuToggle');
-    const sideMenu = document.getElementById('sideMenu');
-    const userAvatar = document.getElementById('userAvatar');
-    const userDropdown = document.getElementById('userDropdown');
+    const menuToggle   = document.getElementById("menuToggle");      // nút 3 gạch
+    const sideNav      = document.querySelector(".side-nav");        // menu trái (home + admin dùng class này)
+    const userAvatar   = document.getElementById("userAvatar");      // avatar tròn
+    const userDropdown = document.getElementById("userDropdown");    // dropdown user
 
-    // --- Xử lý click nút 3 gạch (Mở/Đóng Sidebar) ---
-    if (menuToggle && sideMenu) {
-        menuToggle.addEventListener('click', function(e) {
-            e.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài
-            sideMenu.classList.toggle('open');
-        });
-    }
-
-    // --- Xử lý click Avatar (Mở/Đóng Dropdown User) ---
-    if (userAvatar && userDropdown) {
-        userAvatar.addEventListener('click', function(e) {
+    // Toggle sidebar (mobile / tablet)
+    if (menuToggle && sideNav) {
+        menuToggle.addEventListener("click", function (e) {
             e.stopPropagation();
-            userDropdown.classList.toggle('show');
+            sideNav.classList.toggle("open");
         });
     }
 
-    // --- Xử lý click ra ngoài (Đóng Menu/Dropdown) ---
-    document.addEventListener('click', function(e) {
-        // Đóng Sidebar nếu click ra ngoài vùng menu và nút toggle
-        if (sideMenu && sideMenu.classList.contains('open') &&
-            !sideMenu.contains(e.target) && !menuToggle.contains(e.target)) {
-            sideMenu.classList.remove('open');
+    // Toggle dropdown user
+    if (userAvatar && userDropdown) {
+        userAvatar.addEventListener("click", function (e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle("show");
+        });
+    }
+
+    // Click ra ngoài thì đóng sidebar + dropdown
+    document.addEventListener("click", function (e) {
+        if (sideNav && sideNav.classList.contains("open")
+            && !sideNav.contains(e.target)
+            && !menuToggle.contains(e.target)) {
+            sideNav.classList.remove("open");
         }
 
-        // Đóng Dropdown nếu click ra ngoài vùng avatar và dropdown
-        if (userDropdown && userDropdown.classList.contains('show') &&
-            !userAvatar.contains(e.target) && !userDropdown.contains(e.target)) {
-            userDropdown.classList.remove('show');
+        if (userDropdown && userDropdown.classList.contains("show")
+            && !userAvatar.contains(e.target)
+            && !userDropdown.contains(e.target)) {
+            userDropdown.classList.remove("show");
         }
     });
 
     // =========================================================
-    // 2. CẤU HÌNH BIỂU ĐỒ (CHART.JS)
+    // 2. MƯỢT HƠN KHI CUỘN (scroll smooth cho anchor link)
     // =========================================================
+    const smoothLinks = document.querySelectorAll('a[href^="#"]');
+    smoothLinks.forEach(function (link) {
+        link.addEventListener("click", function (e) {
+            const targetId = this.getAttribute("href").substring(1);
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                e.preventDefault();
+                targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        });
+    });
 
-    // Kiểm tra xem thư viện Chart.js đã tải chưa
-    if (typeof Chart !== 'undefined') {
+    // =========================================================
+    // 3. CHART.JS – THỐNG KÊ TIN ĐĂNG (DASHBOARD)
+    // =========================================================
+    if (typeof Chart !== "undefined") {
+        Chart.defaults.font.family = "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+        Chart.defaults.color = "#6b7280";
 
-        // Cấu hình Font chữ chung
-        Chart.defaults.font.family = "'Poppins', sans-serif";
-        Chart.defaults.color = '#666';
+        const ctxPost = document.getElementById("postChart");
+        if (ctxPost) {
+            const ctx = ctxPost.getContext("2d");
 
-        // --- A. BIỂU ĐỒ CỘT: THỐNG KÊ TIN ĐĂNG (postChart) ---
-                const ctxPost = document.getElementById('postChart');
-                if (ctxPost) {
-                    // TẠO MÀU MỚI: Gradient từ Xám đậm sang Xám nhạt pha xanh
-                    const gradient = ctxPost.getContext('2d').createLinearGradient(0, 0, 0, 400);
-                    gradient.addColorStop(0, '#696969');       // DimGray (Màu chủ đạo của bạn)
-                    gradient.addColorStop(1, 'rgba(105, 105, 105, 0.2)'); // Nhạt dần xuống dưới
+            // Gradient pastel: xanh dương nhạt -> trong suốt
+            const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, "#63BFF4");            // xanh dương nhạt
+            gradient.addColorStop(1, "rgba(99,191,244,0)"); // nhạt dần xuống
 
-                    new Chart(ctxPost, {
-                        type: 'bar',
-                        data: {
-                            labels: ['Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11'],
-                            datasets: [{
-                                label: 'Tin đăng mới',
-                                data: [3, 4, 1, 2],
-                                backgroundColor: gradient, // Dùng màu Gradient Xám
-                                borderColor: '#303030',    // Viền đen xám
-                                borderWidth: 1,
-                                borderRadius: 4,
-                                barThickness: 30,          // Cột mảnh hơn chút cho tinh tế
-                                maxBarThickness: 50
-                            }]
+            new Chart(ctxPost, {
+                type: "bar",
+                data: {
+                    labels: ["Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11"],
+                    datasets: [{
+                        label: "Tin đăng mới",
+                        data: [3, 4, 1, 2],
+                        backgroundColor: gradient,
+                        borderColor: "#63BFF4",
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        barThickness: 40,
+                        maxBarThickness: 56
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#1f2933",
+                            titleColor: "#ffffff",
+                            bodyColor: "#f9fafb",
+                            displayColors: false,
+                            padding: 10
+                        }
+                    },
+                    layout: {
+                        padding: { top: 18, bottom: 10, left: 10, right: 10 }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: "rgba(148,163,184,0.35)",
+                                borderDash: [4, 4]
+                            },
+                            ticks: {
+                                color: "#6b7280",
+                                font: { size: 12 }
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false, // Bắt buộc false để fill theo CSS
-                            plugins: {
-                                legend: { display: false }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    grid: { borderDash: [2, 4], color: '#f0f0f0' },
-                                    ticks: { color: '#888' }
-                                },
-                                x: {
-                                    grid: { display: false },
-                                    ticks: { color: '#303030', font: { weight: '500' } }
-                                }
-                            },
-                            layout: {
-                                padding: { top: 20, bottom: 10, left: 10, right: 10 }
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: "#4b5563",
+                                font: { size: 12, weight: "500" }
                             }
                         }
-                    });
+                    }
                 }
+            });
+        }
     }
-};
+});
+// src/main/resources/static/js/script.js
+document.addEventListener("DOMContentLoaded", function () {
+    // 3. CHART.JS – THỐNG KÊ TIN ĐĂNG (DASHBOARD)
+    // =========================================================
+    if (typeof Chart !== "undefined") {
+        Chart.defaults.font.family = "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+        Chart.defaults.color = "#6b7280";
+
+        const ctxPost = document.getElementById("postChart");
+        if (ctxPost) {
+            const ctx = ctxPost.getContext("2d");
+
+            // Gradient pastel: xanh dương nhạt -> trong suốt
+            const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, "#63BFF4");            // xanh dương nhạt
+            gradient.addColorStop(1, "rgba(99,191,244,0)"); // nhạt dần xuống
+
+            new Chart(ctxPost, {
+                type: "bar",
+                data: {
+                    labels: ["Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11"],
+                    datasets: [{
+                        label: "Tin đăng mới",
+                        data: [3, 4, 1, 2],
+                        backgroundColor: gradient,
+                        borderColor: "#63BFF4",
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        barThickness: 40,
+                        maxBarThickness: 56
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#1f2933",
+                            titleColor: "#ffffff",
+                            bodyColor: "#f9fafb",
+                            displayColors: false,
+                            padding: 10
+                        }
+                    },
+                    layout: {
+                        padding: { top: 18, bottom: 10, left: 10, right: 10 }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: "rgba(148,163,184,0.35)",
+                                borderDash: [4, 4]
+                            },
+                            ticks: {
+                                color: "#6b7280",
+                                font: { size: 12 }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: "#4b5563",
+                                font: { size: 12, weight: "500" }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+});

@@ -2,11 +2,20 @@ package com.example.repository;
 
 import com.example.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
-public interface UserRepository extends JpaRepository<User, Integer> {  // ⭐ ĐỔI Ở ĐÂY
+import java.util.Optional;
+import java.util.List;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    // 🔍 Tìm theo email (dùng cho Spring Security)
     Optional<User> findByEmail(String email);
+
+    // 🔍 Tìm theo số điện thoại (nếu cần)
     Optional<User> findByPhone(String phone);
-    Optional<User> findByEmailAndPassword(String email, String password);
-    Optional<User> findByPhoneAndPassword(String phone, String password);
+
+    // 🔍 Lấy 5 user mới nhất (nếu cần hiển thị danh sách)
+    List<User> findTop5ByOrderByIdDesc();
 }

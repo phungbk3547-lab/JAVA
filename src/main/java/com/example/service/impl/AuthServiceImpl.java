@@ -1,92 +1,86 @@
-package com.example.service;
+package com.example.service.impl;
 
 import com.example.model.User;
 import com.example.repository.UserRepository;
+import com.example.service.AuthService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    // Lưu token -> userId (in-memory demo)
-    // ⭐ DÙNG Integer cho khớp với User.id (INT trong DB)
-    private final Map<String, Integer> resetTokens = new ConcurrentHashMap<>();
-
-    public AuthServiceImpl(UserRepository userRepository) {
+    public AuthServiceImpl(UserRepository userRepository,
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // ====== REGISTER / LOGIN / SOCIAL LOGIN ======
+    // =========================================
+    // 1. ĐĂNG KÝ
+    // =========================================
     @Override
     public void register(User user) {
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("USER");
+        }
+
+        // mã hóa mật khẩu
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         userRepository.save(user);
     }
 
+    // =========================================
+    // 2. LOGIN BẰNG EMAIL
+    // =========================================
     @Override
-    public Optional<User> loginByEmail(String email, String password) {
-        return userRepository.findByEmailAndPassword(email, password);
+    public Optional<User> loginByEmail(String email, String rawPassword) {
+        return userRepository.findByEmail(email)
+                .filter(u -> passwordEncoder.matches(rawPassword, u.getPassword()));
     }
 
+    // =========================================
+    // 3. LOGIN BẰNG SỐ ĐIỆN THOẠI
+    // =========================================
     @Override
-    public Optional<User> loginByPhone(String phone, String password) {
-        return userRepository.findByPhoneAndPassword(phone, password);
+    public Optional<User> loginByPhone(String phone, String rawPassword) {
+        return userRepository.findByPhone(phone)
+                .filter(u -> passwordEncoder.matches(rawPassword, u.getPassword()));
     }
 
+    // =========================================
+    // 4. SOCIAL LOGIN (FAKE)
+    // =========================================
     @Override
     public User socialLogin(String email, String name) {
-        return userRepository.findByEmail(email).orElseGet(() -> {
-            User u = new User();
-            u.setEmail(email);
-            u.setName(name);
-            u.setPassword(UUID.randomUUID().toString()); // demo
-            return userRepository.save(u);
-        });
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setEmail(email);
+                    u.setName(name); // entity không còn username → dùng name
+                    u.setRole("USER");
+                    u.setPassword(passwordEncoder.encode("oauth_login"));
+                    return userRepository.save(u);
+                });
     }
 
-    // ====== RESET PASSWORD (in-memory token) ======
-
+    // =========================================
+    // 5. QUÊN / RESET MẬT KHẨU (BẢN ĐƠN GIẢN)
+    // =========================================
     @Override
     public boolean requestPasswordReset(String email) {
-        if (!StringUtils.hasText(email)) return false;
-
-        var userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) return false;
-
-        var user = userOpt.get();
-
-        // tạo token mới và lưu vào map
-        String token = UUID.randomUUID().toString();
-        resetTokens.put(token, user.getId());   // ⭐ user.getId() là Integer
-
-        // Demo: in link ra console để bạn copy
-        System.out.println("[RESET] Token for " + email + ": " + token);
-        System.out.println("→ Open http://localhost:8080/reset-password?token=" + token);
-
-        return true;
+        // tạm thời chỉ kiểm tra email có tồn tại
+        return userRepository.findByEmail(email).isPresent();
     }
 
     @Override
     public boolean resetPassword(String token, String newPassword) {
-        if (!StringUtils.hasText(token) || !StringUtils.hasText(newPassword)) return false;
-
-        // ⭐ Lấy ra Integer, không phải Long
-        Integer userId = resetTokens.get(token);
-        if (userId == null) return false;
-
-        var userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) return false;
-
-        var user = userOpt.get();
-        user.setPassword(newPassword); // nếu có PasswordEncoder thì encode ở đây
-        userRepository.save(user);
-
-        // dùng xong xoá token để không reuse
-        resetTokens.remove(token);
-        return true;
+        // chưa cài token thật, tạm thời luôn false
+        return false;
     }
 }

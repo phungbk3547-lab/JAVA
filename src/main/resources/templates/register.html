@@ -1,66 +1,96 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng ký - EV Trading</title>
+    <title>Đăng ký | EV Trading</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <script th:src="@{/js/script.js}" defer></script>
 </head>
-<body>
+<body style="background:#f3f9ff;">
 
-<!-- Header -->
-<div th:replace="fragments/header :: header"></div>
+<header class="topbar" style="background:#bdf0df; padding:16px 32px; display:flex; align-items:center;">
+    <a th:href="@{/home}" style="display:inline-flex; align-items:center; text-decoration:none;">
+        <span style="font-size:32px; margin-right:8px;">⚡</span>
+        <span style="font-size:26px; font-weight:700; color:#222;">EV Trading</span>
+    </a>
+</header>
 
-<!-- Register Box -->
-<div class="auth-wrapper">
-    <div class="auth-box">
-        <h2>Tạo tài khoản mới</h2>
-        <p class="auth-subtitle">
-            Đăng ký để đăng tin bán xe, theo dõi thị trường và quản lý giao dịch trên EV Trading.
-        </p>
+<div style="min-height:calc(100vh - 72px); display:flex; align-items:center; justify-content:center; padding:32px;">
+    <div style="max-width:960px; width:100%; background:#ffffff; border-radius:24px;
+                box-shadow:0 18px 45px rgba(15,76,129,0.12); display:flex; overflow:hidden;">
 
-        <form th:action="@{/register}" method="post" class="auth-form">
-            <div class="form-group">
-                <label for="username">Tên đăng nhập</label>
-                <input type="text" id="username" name="username"
-                       placeholder="Nhập tên đăng nhập" required>
+        <!-- bên trái: ảnh -->
+        <div style="flex:1; min-height:420px;
+                    background-image:url('https://images.pexels.com/photos/799443/pexels-photo-799443.jpeg?auto=compress&cs=tinysrgb&w=800');
+                    background-size:cover; background-position:center;
+                    position:relative;">
+            <div style="position:absolute; inset:0;
+                        background:linear-gradient(145deg, rgba(99,191,244,0.4), rgba(233,73,219,0.35));"></div>
+            <div style="position:absolute; left:32px; bottom:32px; color:#fff;">
+                <div style="font-size:20px; font-weight:600; letter-spacing:.05em;">THAM GIA CỘNG ĐỒNG</div>
+                <div style="margin-top:6px; font-size:14px; max-width:260px; opacity:0.9;">
+                    Đăng ký tài khoản để đăng tin bán và theo dõi thị trường xe điện.
+                </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email"
-                       placeholder="Nhập email" required>
-            </div>
+        <!-- bên phải: form -->
+        <div style="flex:1; padding:40px 48px;">
+            <h1 style="font-size:32px; font-weight:700; margin:0 0 8px; color:#222;">Đăng ký</h1>
+            <p style="margin:0 0 24px; font-size:16px; color:#666;">
+                Tạo tài khoản mới để bắt đầu đăng tin mua bán.
+            </p>
 
-            <div class="form-group">
-                <label for="password">Mật khẩu</label>
-                <input type="password" id="password" name="password"
-                       placeholder="Tối thiểu 6 ký tự" required>
-            </div>
+            <form th:action="@{/register}" method="post" style="display:flex; flex-direction:column; gap:16px;">
+                <div>
+                    <label for="name" style="font-size:14px; font-weight:600; color:#444;">Họ tên</label>
+                    <input id="name" name="name" type="text" required
+                           placeholder="Nhập họ tên"
+                           style="margin-top:6px; width:100%; padding:10px 12px; border-radius:12px;
+                                  border:1px solid #d0d7e2; font-size:15px; outline:none;">
+                </div>
 
-            <div class="form-group">
-                <label for="confirmPassword">Nhập lại mật khẩu</label>
-                <input type="password" id="confirmPassword" name="confirmPassword"
-                       placeholder="Nhập lại mật khẩu" required>
-            </div>
+                <div>
+                    <label for="email" style="font-size:14px; font-weight:600; color:#444;">Email</label>
+                    <input id="email" name="email" type="email" required
+                           placeholder="Email đăng nhập"
+                           style="margin-top:6px; width:100%; padding:10px 12px; border-radius:12px;
+                                  border:1px solid #d0d7e2; font-size:15px; outline:none;">
+                </div>
 
-            <!-- Nếu có báo lỗi từ backend -->
-            <p th:if="${error}" class="error" th:text="${error}"></p>
+                <div>
+                    <label for="phone" style="font-size:14px; font-weight:600; color:#444;">Số điện thoại</label>
+                    <input id="phone" name="phone" type="text"
+                           placeholder="Số điện thoại (tuỳ chọn)"
+                           style="margin-top:6px; width:100%; padding:10px 12px; border-radius:12px;
+                                  border:1px solid #d0d7e2; font-size:15px; outline:none;">
+                </div>
 
-            <button type="submit" class="btn-primary full-width">
-                Đăng ký
-            </button>
-        </form>
+                <div>
+                    <label for="password" style="font-size:14px; font-weight:600; color:#444;">Mật khẩu</label>
+                    <input id="password" name="password" type="password" required
+                           placeholder="Ít nhất 6 ký tự"
+                           style="margin-top:6px; width:100%; padding:10px 12px; border-radius:12px;
+                                  border:1px solid #d0d7e2; font-size:15px; outline:none;">
+                </div>
 
-        <p class="auth-bottom">
-            Đã có tài khoản?
-            <a th:href="@{/login}">Đăng nhập ngay</a>
-        </p>
+                <button type="submit"
+                        style="margin-top:8px; width:100%; padding:11px 16px; border:none; border-radius:999px;
+                               font-size:16px; font-weight:600; color:#fff;
+                               background:linear-gradient(90deg,#63bff4,#e949db); cursor:pointer;">
+                    Tạo tài khoản
+                </button>
+            </form>
+
+            <p style="margin-top:18px; font-size:14px; color:#555;">
+                Đã có tài khoản?
+                <a th:href="@{/login}" style="color:#3b82f6; font-weight:600; text-decoration:none;">
+                    Đăng nhập ngay
+                </a>
+            </p>
+        </div>
     </div>
 </div>
-
-<!-- Footer -->
-<div th:replace="fragments/footer :: footer"></div>
 
 </body>
 </html>

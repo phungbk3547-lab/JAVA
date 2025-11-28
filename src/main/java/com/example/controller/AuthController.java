@@ -1,85 +1,108 @@
 package com.example.controller;
 
 import com.example.model.User;
-import com.example.service.AuthService;
-import jakarta.servlet.http.HttpSession;
+import com.example.service.UserService;  // ✅ Dùng UserService
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthController {
-    private final AuthService authService;
-    public AuthController(AuthService authService){ this.authService = authService; }
+
+    private final UserService userService;
+
+    // ✅ Constructor injection
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
+
+    // =======================================================
+    // 1. ĐĂNG KÝ (REGISTER)
+    // =======================================================
 
     @GetMapping("/register")
-    public String registerForm(){ return "register"; }
+    public String showRegisterForm(Model model) {
+        // Nếu redirect có đẩy "user" về thì giữ lại, nếu không thì tạo mới
+        if (!model.containsAttribute("user")) {
+            model.addAttribute("user", new User());
+        }
+        return "register";
+    }
 
     @PostMapping("/register")
-    public String register(@RequestParam(name="username", required=false) String username,
-                           @RequestParam(name="name", required=false) String legacyName,
-                           @RequestParam(required=false) String email,
-                           @RequestParam(required=false) String phone,
-                           @RequestParam String password,
-                           Model model){
-        try{
-            String finalName = (username != null && !username.isBlank()) ? username : legacyName;
-            if (finalName == null || finalName.isBlank()) {
-                model.addAttribute("error","Vui lòng nhập tên đăng nhập.");
-                return "register";
+    public String registerUser(@ModelAttribute("user") User user,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            // ====== VALIDATION CƠ BẢN ======
+            if (user.getEmail() == null || user.getEmail().isBlank()) {
+                redirectAttributes.addFlashAttribute("error", "Vui lòng nhập email.");
+                redirectAttributes.addFlashAttribute("user", user);
+                return "redirect:/register";
             }
-            User u = new User();
-            u.setName(finalName);
-            u.setEmail(email);
-            u.setPhone(phone);
-            u.setPassword(password);
-            u.setRole("USER");   // ⭐ ĐẶT ROLE RÕ RÀNG
 
-            authService.register(u);
+            // Email đã tồn tại?
+            if (userService.findByEmail(user.getEmail()).isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "Email đã tồn tại.");
+                redirectAttributes.addFlashAttribute("user", user);
+                return "redirect:/register";
+            }
 
-            model.addAttribute("msg","Đăng ký thành công. Vui lòng đăng nhập.");
-            return "login";
-        }catch(Exception ex){
-            model.addAttribute("error", ex.getMessage());
-            return "register";
+            // Phone đã tồn tại?
+            if (user.getPhone() != null && !user.getPhone().isBlank()
+                    && userService.findByPhone(user.getPhone()).isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "Số điện thoại đã tồn tại.");
+                redirectAttributes.addFlashAttribute("user", user);
+                return "redirect:/register";
+            }
+
+            // Gán ROLE mặc định
+            if (user.getRole() == null || user.getRole().isBlank()) {
+                user.setRole("USER");
+            }
+
+            // Nếu chưa có name, dùng email làm name
+            if (user.getName() == null || user.getName().isBlank()) {
+                user.setName(user.getEmail());
+            }
+
+            // ❗ Mã hóa mật khẩu + lưu DB phải được xử lý bên trong userService.registerUser()
+            userService.registerUser(user);
+
+            redirectAttributes.addFlashAttribute("msg", "Đăng ký thành công! Vui lòng đăng nhập.");
+            return "redirect:/login";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("user", user);
+            return "redirect:/register";
         }
     }
+
+    // =======================================================
+    // 2. ĐĂNG NHẬP (LOGIN) – để Spring Security xử lý
+    // =======================================================
 
     @GetMapping("/login")
-    public String loginForm(){ return "login"; }
+    public String loginPage(@RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "logout", required = false) String logout,
+                            Model model) {
 
-    @PostMapping("/login")
-    public String login(@RequestParam(required=false) String email,
-                        @RequestParam(required=false) String phone,
-                        @RequestParam String password,
-                        HttpSession session,
-                        Model model){
-        var userOpt = (email!=null && !email.isEmpty())
-                ? authService.loginByEmail(email, password)
-                : authService.loginByPhone(phone, password);
-        if(userOpt.isPresent()){
-            session.setAttribute("user", userOpt.get());
-            return "redirect:/";
-        } else {
-            model.addAttribute("error","Thông tin đăng nhập không chính xác");
-            return "login";
+        if (error != null) {
+            model.addAttribute("error", "Thông tin đăng nhập không chính xác");
         }
-    }
+        if (logout != null) {
+            model.addAttribute("msg", "Bạn đã đăng xuất thành công.");
+        }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session){
-        session.invalidate();
-        return "redirect:/";
+        return "login";
     }
+    // ❌ KHÔNG cần @PostMapping("/login") nữa
+    // Spring Security sẽ tự xử lý POST /login + kiểm tra mật khẩu
+    // dựa trên SecurityConfig + UserDetailsService.
 
-    @PostMapping("/social-login")
-    public String socialLogin(@RequestParam String provider, HttpSession session){
-        String fakeEmail = provider + "@provider.test";
-        String fakeName = "Người dùng " + provider;
-        var u = authService.socialLogin(fakeEmail, fakeName);
-        session.setAttribute("user", u);
-        return "redirect:/";
-    }
+    // =======================================================
+    // 3. QUÊN MẬT KHẨU (FORGOT PASSWORD)
+    // =======================================================
 
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
@@ -88,7 +111,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public String handleForgotPassword(@RequestParam("email") String email, Model model) {
-        boolean ok = authService.requestPasswordReset(email);
+        boolean ok = userService.requestPasswordReset(email); // 🔧 Implement trong UserService
         if (ok) {
             model.addAttribute("message", "Đã gửi liên kết đặt lại mật khẩu tới: " + email);
         } else {
@@ -96,6 +119,10 @@ public class AuthController {
         }
         return "forgot_password";
     }
+
+    // =======================================================
+    // 4. ĐẶT LẠI MẬT KHẨU (RESET PASSWORD)
+    // =======================================================
 
     @GetMapping("/reset-password")
     public String resetPasswordPage(@RequestParam("token") String token, Model model) {
@@ -107,14 +134,20 @@ public class AuthController {
     public String handleResetPassword(@RequestParam("token") String token,
                                       @RequestParam("password") String newPassword,
                                       Model model) {
-        boolean changed = authService.resetPassword(token, newPassword);
+        boolean changed = userService.resetPassword(token, newPassword); // 🔧 Implement trong UserService
         if (changed) {
-            model.addAttribute("msg","Đặt lại mật khẩu thành công. Vui lòng đăng nhập.");
+            model.addAttribute("msg", "Đặt lại mật khẩu thành công. Vui lòng đăng nhập.");
             return "login";
         } else {
-            model.addAttribute("error","Token không hợp lệ hoặc đã hết hạn.");
+            model.addAttribute("error", "Token không hợp lệ hoặc đã hết hạn.");
             model.addAttribute("token", token);
             return "reset_password";
         }
     }
+
+    // =======================================================
+    // (TÙY CHỌN) 5. CÁC HÀM TEST MÃ HÓA MẬT KHẨU / DEBUG
+    // =======================================================
+    // Nếu bạn còn cần /test/encode, /test/match thì có thể thêm sau
+    // nhưng nhớ để logic mã hóa bên Service, không để ở Controller nữa.
 }

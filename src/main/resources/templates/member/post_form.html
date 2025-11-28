@@ -2,96 +2,94 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng tin</title>
+    <title th:text="${post.id == null} ? 'Đăng tin mới' : 'Cập nhật tin'">Đăng tin</title>
+
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script th:src="@{/js/script.js}" defer></script>
 </head>
 <body>
 
-<!-- Header -->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-<div class="auth-wrapper">
-    <div class="auth-box" style="max-width:680px;">
-        <h2 th:text="${post.id == null ? 'Đăng tin mới' : 'Cập nhật tin'}"></h2>
+<div class="auth-wrapper post-form-wrapper">
+    <div class="auth-box post-form-box">
 
-        <form th:action="${post.id == null} ? @{/posts} : @{'/posts/' + ${post.id}}"
+        <h2 class="post-form-title"
+            th:text="${post.id == null} ? 'Đăng tin bán xe điện' : 'Chỉnh sửa tin đăng'">
+            Đăng tin bán xe điện
+        </h2>
+
+        <form th:object="${post}"
+              th:action="@{/member/posts/save}"
               method="post"
               enctype="multipart/form-data"
-              class="auth-form">
+              class="auth-form post-form">
 
-            <!-- TIÊU ĐỀ -->
+            <input type="hidden" th:field="*{id}">
+
+            <input type="hidden" th:field="*{imagePath}">
+
             <div class="form-group">
-                <label>Tiêu đề</label>
-                <input type="text" name="title" th:value="${post.title}" required>
+                <label for="title">Tiêu đề</label>
+                <input id="title" type="text" th:field="*{title}" required placeholder="Vd: Bán xe VinFast VF8...">
             </div>
 
-            <!-- DANH MỤC -->
             <div class="form-group">
-                <label>Danh mục</label>
-                <input type="text"
-                       name="category"
-                       th:value="${post.category}"
-                       placeholder="Ví dụ: EV, PIN, Xe điện, Pin năng lượng...">
+                <label for="category">Danh mục / Loại xe</label>
+                <input id="category" type="text" th:field="*{category}"
+                       placeholder="VD: Xe máy điện, Ô tô điện, Pin...">
             </div>
 
-            <!-- ĐỊA ĐIỂM -->
             <div class="form-group">
-                <label>Địa điểm</label>
-                <input type="text"
-                       name="location"
-                       th:value="${post.location}"
-                       placeholder="Ví dụ: Hồ Chí Minh">
+                <label for="price">Giá (VND)</label>
+                <input id="price" type="number" step="1000" th:field="*{price}" placeholder="Nhập giá bán">
             </div>
 
-            <!-- GIÁ -->
             <div class="form-group">
-                <label>Giá (VND)</label>
-                <input type="number"
-                       name="price"
-                       th:value="${post.price}"
-                       min="0"
-                       step="1000"
-                       placeholder="Ví dụ: 350000000">
+                <label for="location">Địa điểm</label>
+                <input id="location" type="text" th:field="*{location}" required placeholder="Vd: TP.HCM">
             </div>
 
-            <!-- NỘI DUNG -->
             <div class="form-group">
-                <label>Nội dung</label>
-                <textarea name="content"
-                          rows="6"
-                          th:text="${post.content}"
-                          style="resize:vertical;padding:9px;border:1px solid #dcdcdc;border-radius:8px;"></textarea>
+                <label for="content">Mô tả chi tiết</label>
+                <textarea id="content" rows="6" th:field="*{content}"></textarea>
             </div>
 
-            <!-- HÌNH ẢNH -->
             <div class="form-group">
                 <label>Hình ảnh</label>
                 <input type="file" name="image" accept="image/*">
-                <img th:if="${post.imagePath != null}"
-                     th:src="${post.imagePath}"
-                     style="margin-top:8px;width:200px;border-radius:10px;">
+
+                <div th:if="${post.imagePath != null}" style="margin-top: 10px;">
+                    <p>Ảnh hiện tại:</p>
+                    <img th:src="@{${post.imagePath}}" class="post-image-preview" style="max-height: 150px; border-radius: 5px;">
+                </div>
             </div>
 
-            <!-- NÚT LƯU -->
-            <button class="btn-primary"
-                    type="submit"
-                    th:text="${post.id == null ? 'Đăng tin' : 'Lưu thay đổi'}">
-            </button>
+            <div class="post-form-actions">
+                <button class="btn post-btn-primary" type="submit"
+                        th:text="${post.id == null} ? 'Đăng tin ngay' : 'Lưu thay đổi'">
+                    Đăng tin
+                </button>
+
+                <a th:href="@{/member/my-posts}" class="btn post-btn-cancel">
+                    Hủy
+                </a>
+            </div>
         </form>
 
-        <!-- NÚT XOÁ (CHỈ KHI CHỈNH SỬA) -->
-        <form th:if="${post.id != null}"
-              th:action="@{'/posts/' + ${post.id} + '/delete'}"
-              method="post"
-              style="margin-top:10px;">
-            <button class="btn-outline" onclick="return confirm('Xoá tin?')">Xoá tin</button>
-        </form>
+        <div th:if="${post.id != null}" style="margin-top: 20px; text-align: center;">
+            <form th:action="@{'/member/deletePost/' + ${post.id}}"
+                  method="post"
+                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa tin này không?');">
+                <button type="submit" class="btn btn-danger" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                    Xóa bài viết này
+                </button>
+            </form>
+        </div>
+
     </div>
 </div>
 
-<!-- Footer -->
-<div th:replace="fragments/footer :: footer"></div>
-
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

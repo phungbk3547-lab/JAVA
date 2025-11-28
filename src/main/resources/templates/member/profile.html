@@ -1,36 +1,94 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
-    <title>Trang Cá nhân | Hệ thống Thành viên</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Trang Cá nhân | EV Trading</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
+
 <body>
-<div class="container">
-    <h1>👋 Chào mừng đến với Trang Cá nhân</h1>
-    <hr>
 
-    <p sec:authorize="isAuthenticated()">
-        Bạn đã đăng nhập thành công với tư cách:
-        <strong><span sec:authentication="name">Tên người dùng</span></strong>
-    </p>
+<div th:replace="~{fragments/header :: header}"></div>
 
-    <p>
-        Vai trò của bạn trong hệ thống là:
-        <strong><span sec:authentication="authorities">ROLE_USER</span></strong>
-    </p>
+<main class="profile-page">
+    <div class="profile-card">
 
-    <hr>
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <span class="avatar-circle">
+                    <span class="avatar-letter"
+                          th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">
+                        U
+                    </span>
+                </span>
+            </div>
 
-    <h2>Thông tin chi tiết (Ví dụ)</h2>
-    <ul>
-        <li>Email: <span sec:authentication="name">user@example.com</span></li>
-        <li>Trạng thái: Đã xác thực</li>
-    </ul>
+            <div class="profile-title">
+                <h1>
+                    Xin chào,
+                    <span th:text="${user.name}">Tên người dùng</span> 👋
+                </h1>
+                <p class="profile-subtitle">
+                    Bạn đã đăng nhập với tài khoản:
+                    <strong th:text="${user.email}">user@example.com</strong>
+                </p>
+                <p class="profile-subtitle">
+                    Vai trò trong hệ thống:
+                    <strong><span sec:authentication="authorities">ROLE_USER</span></strong>
+                </p>
+            </div>
+        </div>
 
-    <br>
-    <a href="/" class="btn">Về Trang chủ</a>
-    <a th:href="@{/logout}" class="btn btn-danger">Đăng xuất</a>
-</div>
+        <hr/>
+
+        <section class="profile-info">
+            <h2>Thông tin tài khoản</h2>
+
+            <div class="profile-info-grid">
+                <div class="info-item">
+                    <span class="label">Họ và tên</span>
+                    <span class="value" th:text="${user.name}">Nguyễn Văn A</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="label">Email</span>
+                    <span class="value" th:text="${user.email}">user@example.com</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="label">Số điện thoại</span>
+                    <span class="value"
+                          th:text="${user.phone != null && !#strings.isEmpty(user.phone) ? user.phone : 'Chưa cập nhật'}">
+                        0123 456 789
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="label">Trạng thái</span>
+                    <span class="value status-ok">Đã xác thực</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="profile-actions">
+            <a th:href="@{/home}" class="btn btn-secondary">← Về Trang chủ</a>
+
+            <!-- NÚT SỬA HỒ SƠ MỚI -->
+            <a th:href="@{/member/profile/edit}" class="btn btn-edit">
+                Sửa hồ sơ
+            </a>
+
+            <a th:href="@{/logout}" class="btn btn-danger">Đăng xuất</a>
+        </div>
+
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>
